@@ -9,7 +9,6 @@ tqdm
 scipy
 matplotlib
 typing
-warnings
 struct
 os
 random

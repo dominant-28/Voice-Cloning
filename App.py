@@ -6,7 +6,7 @@ import soundfile as sf
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
 from typing import List, Union
-
+from loader import load_voice_cloning_models
 # Streamlit config
 st.set_page_config(layout="centered")
 
@@ -50,9 +50,12 @@ from wavernn.model import WaveRNN
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 @st.cache_resource
+def get_model_paths():
+    return load_voice_cloning_models()
 def load_models():
+    model_paths = get_model_paths()    
     enc = SpeakerEncoder(device, device)
-    enc.load_state_dict(torch.load("models/encoder.pt", map_location=device)["model_state"])
+    enc.load_state_dict(torch.load(model_paths["encoder.pt"], map_location=device)["model_state"])
 
     syn = Tacotron(
         embed_dims=hparams.tts_embed_dims,
@@ -70,7 +73,7 @@ def load_models():
         stop_threshold=hparams.tts_stop_threshold,
         speaker_embedding_size=hparams.speaker_embedding_size
     ).to(device)
-    syn.load_state_dict(torch.load("models/synthesizer.pt", map_location=device)["model_state"])
+    syn.load_state_dict(torch.load(model_paths["synthesizer.pt"], map_location=device)["model_state"])
 
     voc = WaveRNN(
         rnn_dims=512,
@@ -85,7 +88,7 @@ def load_models():
         hop_length=200,
         sample_rate=16000,
     )
-    voc.load_state_dict(torch.load("models/vocoder.pt", map_location=device)["model_state"])
+    voc.load_state_dict(torch.load(model_paths["vocoder.pt"], map_location=device)["model_state"])
 
     return enc, syn, voc
 

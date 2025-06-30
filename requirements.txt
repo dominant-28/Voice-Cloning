@@ -9,7 +9,6 @@ tqdm
 scipy
 matplotlib
 typing
-struct
 os
 random
 sklearn

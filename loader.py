@@ -7,7 +7,7 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 
 # Model file names and corresponding Google Drive file IDs
 MODEL_FILES = {
-    'encoder.pt':     'YOUR_ENCODER_FILE_ID',
+    'encoder.pt':     '1NV3ooEwd_XHxUIgb0VnBYHmcRJJZkMXV',
     'synthesizer.pt': 'YOUR_SYNTHESIZER_FILE_ID',
     'vocoder.pt':     'YOUR_VOCODER_FILE_ID'
 }

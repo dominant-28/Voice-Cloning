@@ -7,41 +7,39 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from hparams import hparams_debug_string
+
 from model import Tacotron
 from tacotron_dataset import SynthesizerDataset, collate_synthesizer
 from utils.text import symbols
 
 
-def run_synthesis(in_dir: Path, out_dir: Path, syn_model_fpath: Path, hparams):
+def run_synthesis(in_dir: Path, out_dir: Path, syn_model_fpath: Path):
     
     synth_dir = out_dir / "mels_gta"
     synth_dir.mkdir(exist_ok=True, parents=True)
-    print(hparams_debug_string())
+   
 
     if torch.cuda.is_available():
         device = torch.device("cuda")
-        if hparams.synthesis_batch_size % torch.cuda.device_count() != 0:
-            raise ValueError("`hparams.synthesis_batch_size` must be evenly divisible by n_gpus!")
     else:
         device = torch.device("cpu")
     print("Synthesizer using device:", device)
 
    
-    model = Tacotron(embed_dims=hparams.tts_embed_dims,
+    model = Tacotron(embed_dims=512,
                      num_chars=len(symbols),
-                     encoder_dims=hparams.tts_encoder_dims,
-                     decoder_dims=hparams.tts_decoder_dims,
-                     n_mels=hparams.num_mels,
-                     fft_bins=hparams.num_mels,
-                     postnet_dims=hparams.tts_postnet_dims,
-                     encoder_K=hparams.tts_encoder_K,
-                     lstm_dims=hparams.tts_lstm_dims,
-                     postnet_K=hparams.tts_postnet_K,
-                     num_highways=hparams.tts_num_highways,
+                     encoder_dims=256,
+                     decoder_dims=128,
+                     n_mels=80,
+                     fft_bins=80,
+                     postnet_dims=512,
+                     encoder_K=5,
+                     lstm_dims=1024,
+                     postnet_K=5,
+                     num_highways=4,
                      dropout=0., # Use zero dropout for gta mels
-                     stop_threshold=hparams.tts_stop_threshold,
-                     speaker_embedding_size=hparams.speaker_embedding_size).to(device)
+                     stop_threshold=-3.4,
+                     speaker_embedding_size=256).to(device)
 
     print("\nLoading weights at %s" % syn_model_fpath)
     model.load(syn_model_fpath)
@@ -55,9 +53,9 @@ def run_synthesis(in_dir: Path, out_dir: Path, syn_model_fpath: Path, hparams):
     mel_dir = in_dir.joinpath("mels")
     embed_dir = in_dir.joinpath("embeds")
 
-    dataset = SynthesizerDataset(metadata_fpath, mel_dir, embed_dir, hparams)
-    collate_fn = partial(collate_synthesizer, r=r, hparams=hparams)
-    data_loader = DataLoader(dataset, hparams.synthesis_batch_size, collate_fn=collate_fn, num_workers=2)
+    dataset = SynthesizerDataset(metadata_fpath, mel_dir, embed_dir)
+    collate_fn = partial(collate_synthesizer, r=r)
+    data_loader = DataLoader(dataset, 16, collate_fn=collate_fn, num_workers=2)
     
     meta_out_fpath = out_dir / "synthesized.txt"
     with meta_out_fpath.open("w") as file:

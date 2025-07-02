@@ -6,7 +6,7 @@ from utils.text import text_to_sequence
 
 
 class SynthesizerDataset(Dataset):
-    def __init__(self, metadata_fpath: Path, mel_dir: Path, embed_dir: Path, hparams):
+    def __init__(self, metadata_fpath: Path, mel_dir: Path, embed_dir: Path):
         print("Using inputs from:\n\t%s\n\t%s\n\t%s" % (metadata_fpath, mel_dir, embed_dir))
         
         with metadata_fpath.open("r") as metadata_file:
@@ -19,7 +19,7 @@ class SynthesizerDataset(Dataset):
         self.samples_fpaths = list(zip(mel_fpaths, embed_fpaths))
         self.samples_texts = [x[5].strip() for x in metadata if int(x[4])]
         self.metadata = metadata
-        self.hparams = hparams
+        
         
         print("Found %d samples" % len(self.samples_fpaths))
     
@@ -35,7 +35,7 @@ class SynthesizerDataset(Dataset):
         embed = np.load(embed_path)
 
        
-        text = text_to_sequence(self.samples_texts[index], self.hparams.tts_cleaner_names)
+        text = text_to_sequence(self.samples_texts[index], ["english_cleaners"])
         
        
         text = np.asarray(text).astype(np.int32)
@@ -46,11 +46,11 @@ class SynthesizerDataset(Dataset):
         return len(self.samples_fpaths)
 
 
-def collate_synthesizer(batch, r, hparams):
+def collate_synthesizer(batch, r):
   
     x_lens = [len(x[0]) for x in batch]
     max_x_len = max(x_lens)
-
+    
     chars = [pad1d(x[0], max_x_len) for x in batch]
     chars = np.stack(chars)
 
@@ -60,11 +60,10 @@ def collate_synthesizer(batch, r, hparams):
     if max_spec_len % r != 0:
         max_spec_len += r - max_spec_len % r 
 
+    # symmetric padding for mel spectrograms
     
-    if hparams.symmetric_mels:
-        mel_pad_value = -1 * hparams.max_abs_value
-    else:
-        mel_pad_value = 0
+    mel_pad_value = -1 * 4.
+  
 
     mel = [pad2d(x[1], max_spec_len, pad_value=mel_pad_value) for x in batch]
     mel = np.stack(mel)

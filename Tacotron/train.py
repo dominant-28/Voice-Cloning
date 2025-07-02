@@ -13,7 +13,7 @@ from utils.text import symbols
 def np_now(x): return x.detach().cpu().numpy()
 def time_string(): return datetime.now().strftime("%Y-%m-%d %H:%M")
 
-def train(run_id, syn_dir, models_dir, force_restart, hparams):
+def train(run_id, syn_dir, models_dir, force_restart):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
 
@@ -23,20 +23,20 @@ def train(run_id, syn_dir, models_dir, force_restart, hparams):
 
     # Init model
     model = Tacotron(
-        embed_dims=hparams.tts_embed_dims,
+        embed_dims=512,
         num_chars=len(symbols),
-        encoder_dims=hparams.tts_encoder_dims,
-        decoder_dims=hparams.tts_decoder_dims,
-        n_mels=hparams.num_mels,
-        fft_bins=hparams.num_mels,
-        postnet_dims=hparams.tts_postnet_dims,
-        encoder_K=hparams.tts_encoder_K,
-        lstm_dims=hparams.tts_lstm_dims,
-        postnet_K=hparams.tts_postnet_K,
-        num_highways=hparams.tts_num_highways,
-        dropout=hparams.tts_dropout,
-        stop_threshold=hparams.tts_stop_threshold,
-        speaker_embedding_size=hparams.speaker_embedding_size
+        encoder_dims=256,
+        decoder_dims=128,
+        n_mels=80,
+        fft_bins=80,
+        postnet_dims=512,
+        encoder_K=5,
+        lstm_dims=1024,
+        postnet_K=5,
+        num_highways=4,
+        dropout=0.5,
+        stop_threshold=-3.4,
+        speaker_embedding_size=256
     ).to(device)
 
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
@@ -52,8 +52,7 @@ def train(run_id, syn_dir, models_dir, force_restart, hparams):
     dataset = SynthesizerDataset(
         metadata_fpath=syn_dir / "train.txt",
         mel_dir=syn_dir / "mels",
-        embed_dir=syn_dir / "embeds",
-        hparams=hparams
+        embed_dir=syn_dir / "embeds"
     )
 
     data_loader = DataLoader(
@@ -61,7 +60,7 @@ def train(run_id, syn_dir, models_dir, force_restart, hparams):
         batch_size=12,
         shuffle=True,
         num_workers=0,
-        collate_fn=partial(collate_synthesizer, r=1, hparams=hparams)
+        collate_fn=partial(collate_synthesizer, r=1)
     )
 
     model.r = 1
@@ -94,8 +93,8 @@ def train(run_id, syn_dir, models_dir, force_restart, hparams):
             optimizer.zero_grad()
             loss.backward()
 
-            if hparams.tts_clip_grad_norm is not None:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), hparams.tts_clip_grad_norm)
+            
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
 
             optimizer.step()
 

@@ -1,7 +1,7 @@
 from preprocess import preprocess_librispeech
 from pathlib import Path
 
-datasets_root = Path(r"C:\Users\soham\FInalVoice Cloning\LibriSpeech")   
+datasets_root = Path(r"your DIR\LibriSpeech")   
 out_dir = datasets_root/"processed"/ "encoder"
 
 

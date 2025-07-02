@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(r"C:\Users\soham\FInalVoice Cloning"))
 from Encoder import audio as encoderAudio
 from Encoder.model import SpeakerEncoder
 
-def preprocess_dataset(datasets_root: Path, out_dir: Path,hparams,
+def preprocess_dataset(datasets_root: Path, out_dir: Path,
                         datasets_name: str):
     
     if not os.path.exists(datasets_root):
@@ -31,7 +31,7 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path,hparams,
         speaker_metadata = preprocess_speaker(
             speaker_dir=speaker_dir,
             out_dir=out_dir,
-            hparams=hparams
+            
         )
         for metadatum in speaker_metadata:
             metadata_file.write("|".join(str(x) for x in metadatum) + "\n")
@@ -43,7 +43,7 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path,hparams,
 
     mel_frames = sum(int(m[4]) for m in metadata)
     timesteps = sum(int(m[3]) for m in metadata)
-    hours = (timesteps / hparams.sample_rate) / 3600
+    hours = (timesteps / 16000) / 3600
 
     print(f"\n✅ Dataset: {len(metadata)} utterances")
     print(f"🔹 {mel_frames} mel frames")
@@ -54,7 +54,7 @@ def preprocess_dataset(datasets_root: Path, out_dir: Path,hparams,
 
 
 
-def preprocess_speaker(speaker_dir: Path,out_dir: Path,hparams):
+def preprocess_speaker(speaker_dir: Path,out_dir: Path):
     metadata = []
 
     for book_dir in speaker_dir.glob("*"):
@@ -83,34 +83,33 @@ def preprocess_speaker(speaker_dir: Path,out_dir: Path,hparams):
                 print(f"⚠️ No transcription found for {basename}")
                 continue
 
-            wav, _ = librosa.load(str(wav_fpath), sr=hparams.sample_rate)
-            if hparams.rescale:
-                wav = wav / np.abs(wav).max() * hparams.rescaling_max
+            wav, _ = librosa.load(str(wav_fpath), sr=16000)
+            # recaling 
+            wav = wav / np.abs(wav).max() * 0.9
 
             
             text = text_dict[basename]
-            item = process_utterance(wav, text, out_dir, basename,hparams)
+            item = process_utterance(wav, text, out_dir, basename)
             if item is not None:
                 metadata.append(item)
 
     return metadata
 
-def process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str,
-                    hparams):
+def process_utterance(wav: np.ndarray, text: str, out_dir: Path, basename: str ):
     
     mel_fpath = out_dir.joinpath("mels", "mel-%s.npy" % basename)
     wav_fpath = out_dir.joinpath("audio", "audio-%s.npy" % basename)
 
-    if hparams.trim_silence:
-        wav = encoderAudio.preprocess_wav(wav, normalize=False, trim_silence=True)
+    
+    wav = encoderAudio.preprocess_wav(wav, normalize=False, trim_silence=True)
 
-    if len(wav) < hparams.utterance_min_duration * hparams.sample_rate:
+    if len(wav) < 1.6 * 16000:
         return None
 
-    mel_spectrogram = audio.melspectrogram(wav, hparams).astype(np.float32)
+    mel_spectrogram = audio.melspectrogram(wav).astype(np.float32)
     mel_frames = mel_spectrogram.shape[1]
 
-    if mel_frames > hparams.max_mel_frames and hparams.clip_mels_length:
+    if mel_frames > 900 and True:
         return None
 
     np.save(mel_fpath, mel_spectrogram.T, allow_pickle=False)

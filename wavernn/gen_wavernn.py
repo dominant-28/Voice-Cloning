@@ -15,10 +15,9 @@ def gen_testset(model: WaveRNN, test_set, samples, batched, target, overlap, sav
 
         bits = 9
 
-        if hp.mu_law and hp.voc_mode != 'MOL' :
-            x = decode_mu_law(x, 2**bits, from_labels=True)
-        else :
-            x = label_2_float(x, bits)
+        
+        x = decode_mu_law(x, 2**bits, from_labels=True)
+        
 
         save_wav(x, save_path.joinpath("%dk_steps_%d_target.wav" % (k, i)))
         
@@ -26,6 +25,6 @@ def gen_testset(model: WaveRNN, test_set, samples, batched, target, overlap, sav
             "gen_not_batched"
         save_str = save_path.joinpath("%dk_steps_%d_%s.wav" % (k, i, batch_str))
 
-        wav = model.generate(m, batched, target, overlap, hp.mu_law)
+        wav = model.generate(m, batched, target, overlap, True)
         save_wav(wav, save_str)
 

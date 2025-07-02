@@ -44,7 +44,6 @@ from Encoder.audio import preprocess_wav, wav_to_mel_spectrogram
 from Encoder.model import SpeakerEncoder
 from Tacotron.model import Tacotron
 from Tacotron.utils.text import text_to_sequence, symbols
-from Tacotron.hparams import hparams
 from wavernn.model import WaveRNN
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -58,20 +57,20 @@ def load_models():
     enc.load_state_dict(torch.load(model_paths["encoder.pt"], map_location=device)["model_state"])
 
     syn = Tacotron(
-        embed_dims=hparams.tts_embed_dims,
+        embed_dims=512,
         num_chars=len(symbols),
-        encoder_dims=hparams.tts_encoder_dims,
-        decoder_dims=hparams.tts_decoder_dims,
-        n_mels=hparams.num_mels,
-        fft_bins=hparams.num_mels,
-        postnet_dims=hparams.tts_postnet_dims,
-        encoder_K=hparams.tts_encoder_K,
-        lstm_dims=hparams.tts_lstm_dims,
-        postnet_K=hparams.tts_postnet_K,
-        num_highways=hparams.tts_num_highways,
-        dropout=hparams.tts_dropout,
-        stop_threshold=hparams.tts_stop_threshold,
-        speaker_embedding_size=hparams.speaker_embedding_size
+        encoder_dims=256,
+        decoder_dims=128,
+        n_mels=80,
+        fft_bins=80,
+        postnet_dims=512,
+        encoder_K=5,
+        lstm_dims=1024,
+        postnet_K=5,
+        num_highways=4,
+        dropout=0.5,
+        stop_threshold=-3.4,
+        speaker_embedding_size=256
     ).to(device)
     syn.load_state_dict(torch.load(model_paths["synthesizer.pt"], map_location=device)["model_state"])
 
@@ -107,10 +106,10 @@ def synthesize_spectrograms(texts: List[str],
         if not isinstance(embeddings, list):
             embeddings = [embeddings]
 
-        batched_inputs = [inputs[i:i+hparams.synthesis_batch_size]
-                             for i in range(0, len(inputs), hparams.synthesis_batch_size)]
-        batched_embeds = [embeddings[i:i+hparams.synthesis_batch_size]
-                             for i in range(0, len(embeddings), hparams.synthesis_batch_size)]
+        batched_inputs = [inputs[i:i+16]
+                             for i in range(0, len(inputs), 16)]
+        batched_embeds = [embeddings[i:i+16]
+                             for i in range(0, len(embeddings), 16)]
 
         specs = []
         for i, batch in enumerate(batched_inputs, 1):
@@ -132,7 +131,7 @@ def synthesize_spectrograms(texts: List[str],
             mels = mels.detach().cpu().numpy()
             for m in mels:
                 # Trim silence from end of each spectrogram
-                while np.max(m[:, -1]) < hparams.tts_stop_threshold:
+                while np.max(m[:, -1]) < -3.4:
                     m = m[:, :-1]
                 specs.append(m)
 

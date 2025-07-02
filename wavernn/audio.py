@@ -1,6 +1,5 @@
 import math
 import numpy as np
-from . import hparams as hp
 from scipy.signal import lfilter
 import soundfile as sf
 
@@ -14,14 +13,14 @@ def float_2_label(x, bits) :
     return x.clip(0, 2**bits - 1)
 
 def save_wav(x, path) :
-    sf.write(path, x.astype(np.float32), hp.sample_rate)
+    sf.write(path, x.astype(np.float32), 16000)
 
 def pre_emphasis(x):
-    return lfilter([1, -hp.preemphasis], [1], x)
+    return lfilter([1, -0.97], [1], x)
 
 
 def de_emphasis(x):
-    return lfilter([1], [1, -hp.preemphasis], x)
+    return lfilter([1], [1, -0.97], x)
 
 
 def encode_mu_law(x, mu) :

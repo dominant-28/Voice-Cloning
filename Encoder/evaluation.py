@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from  model import SpeakerEncoder
+# for evaluation and visualization of speaker embeddings after training the encoder model.
 def LoadEncoderModel(encoder_model_path):
     if not os.path.exists(encoder_model_path):
         raise FileNotFoundError(f"Encoder model file {encoder_model_path} does not exist.")
@@ -62,4 +63,4 @@ def visualize( encoder_model_path, file_path, n_speaker=20,sample_per_speaker=5,
     plt.show()    
 
 if "__main__" == __name__:
-    visualize(r"C:\Users\soham\OneDrive\Documents\COntinje VOICECLONING\Real-Time-Voice-Cloning\saved_models\default\encoder.pt",r"C:\Users\soham\FInalVoice Cloning\LibriSpeech\processed\encoder")   
+    visualize(r"DIR\encoder.pt",r"DIR\encoder")   

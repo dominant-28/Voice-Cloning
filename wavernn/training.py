@@ -25,6 +25,6 @@ def train_vocoder_model(run_id: str,datasets_root: Path,syn_dir: Path = None,voc
 if __name__ == "__main__":
     train_vocoder_model(
         run_id="vocoder_run_01",
-        datasets_root=Path(r"C:\Users\soham\FInalVoice Cloning\LibriSpeech"),     
+        datasets_root=Path(r"DIR\LibriSpeech"),     
         force_restart=False,     
     )

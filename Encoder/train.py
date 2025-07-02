@@ -8,7 +8,7 @@ from model import SpeakerEncoder
 def main():
    
     run_id = "libri_speaker_encoder"
-    clean_data_root = Path(r"C:\Users\soham\FInalVoice Cloning\LibriSpeech\processed\encoder")
+    clean_data_root = Path(r"DIR\LibriSpeech\processed\encoder")
     models_dir = Path("saved_models")
     force_restart = True
     max_steps = 5000

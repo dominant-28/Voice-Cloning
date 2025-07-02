@@ -1,4 +1,3 @@
-
 import librosa
 import librosa.filters
 import numpy as np
@@ -12,67 +11,48 @@ def preemphasis(wav, k, preemphasize=True):
         return signal.lfilter([1, -k], [1], wav)
     return wav
 
-def get_hop_size(hparams):
-    hop_size = hparams.hop_size
-    if hop_size is None:
-        assert hparams.frame_shift_ms is not None
-        hop_size = int(hparams.frame_shift_ms / 1000 * hparams.sample_rate)
+def get_hop_size():
+    hop_size = 200
+    
     return hop_size
 
 
-def melspectrogram(wav, hparams):
-    D = _stft(preemphasis(wav, hparams.preemphasis, hparams.preemphasize), hparams)
-    S = _amp_to_db(_linear_to_mel(np.abs(D), hparams), hparams) - hparams.ref_level_db
+def melspectrogram(wav):
+    D = _stft(preemphasis(wav, 0.97, True))
+    S = _amp_to_db(_linear_to_mel(np.abs(D))) - 20
     
-    if hparams.signal_normalization:
-        return _normalize(S, hparams)
+    if True:
+      return _normalize(S)
     return S
 
-
-
-def _lws_processor(hparams):
-    import lws
-    return lws.lws(hparams.n_fft, get_hop_size(hparams), fftsize=hparams.win_size, mode="speech")
-
-def _stft(y, hparams):
-    if hparams.use_lws:
-        return _lws_processor(hparams).stft(y).T
-    else:
-        return librosa.stft(y=y, n_fft=hparams.n_fft, hop_length=get_hop_size(hparams), win_length=hparams.win_size)
+def _stft(y):
+    
+    return librosa.stft(y=y, n_fft=800, hop_length=get_hop_size(), win_length=800)
 
 
 
 _mel_basis = None
-_inv_mel_basis = None
-
-def _linear_to_mel(spectogram, hparams):
+def _linear_to_mel(spectogram):
     global _mel_basis
     if _mel_basis is None:
-        _mel_basis = _build_mel_basis(hparams)
+        _mel_basis = _build_mel_basis()
     return np.dot(_mel_basis, spectogram)
 
 
-def _build_mel_basis(hparams):
-    assert hparams.fmax <= hparams.sample_rate // 2
-    return librosa.filters.mel(hparams.sample_rate, hparams.n_fft, n_mels=hparams.num_mels,
-                               fmin=hparams.fmin, fmax=hparams.fmax)
+def _build_mel_basis():
+    # fmax<=sample_rate/2
+    return librosa.filters.mel(16000, 800, n_mels=80,
+                               fmin=55, fmax=7600)
 
-def _amp_to_db(x, hparams):
-    min_level = np.exp(hparams.min_level_db / 20 * np.log(10))
+def _amp_to_db(x):
+    min_level = np.exp(-100 / 20 * np.log(10))
     return 20 * np.log10(np.maximum(min_level, x))
 
 
-def _normalize(S, hparams):
-    if hparams.allow_clipping_in_normalization:
-        if hparams.symmetric_mels:
-            return np.clip((2 * hparams.max_abs_value) * ((S - hparams.min_level_db) / (-hparams.min_level_db)) - hparams.max_abs_value,
-                           -hparams.max_abs_value, hparams.max_abs_value)
-        else:
-            return np.clip(hparams.max_abs_value * ((S - hparams.min_level_db) / (-hparams.min_level_db)), 0, hparams.max_abs_value)
+def _normalize(S):
+    # clipping in normalization
     
-    assert S.max() <= 0 and S.min() - hparams.min_level_db >= 0
-    if hparams.symmetric_mels:
-        return (2 * hparams.max_abs_value) * ((S - hparams.min_level_db) / (-hparams.min_level_db)) - hparams.max_abs_value
-    else:
-        return hparams.max_abs_value * ((S - hparams.min_level_db) / (-hparams.min_level_db))
+    return np.clip((2 * 4) * ((S - (-100)) / (100)) - 4,
+                           -4, 4)
+    
 

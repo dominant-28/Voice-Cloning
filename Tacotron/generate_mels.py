@@ -1,6 +1,5 @@
 from pathlib import Path
 import torch
-from hparams import hparams
 from tacotron_dataset import SynthesizerDataset,collate_synthesizer
 from model import Tacotron
 from utils.text import symbols
@@ -8,7 +7,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from tqdm import tqdm
 from functools import partial
-def generate_gta_mels(datasets_root=Path(r"C:\Users\soham\FInalVoice Cloning\LibriSpeech"), syn_model_fpath=Path(r"C:\Users\soham\OneDrive\Documents\COntinje VOICECLONING\Real-Time-Voice-Cloning\saved_models\default\synthesizer.pt")):
+def generate_gta_mels(datasets_root=Path(r"DIR\LibriSpeech"), syn_model_fpath=Path(r"DIR\synthesizer.pt")):
     
     in_dir = datasets_root / "processed" / "synthesizer"
     out_dir = datasets_root / "processed" / "vocoder"
@@ -17,20 +16,20 @@ def generate_gta_mels(datasets_root=Path(r"C:\Users\soham\FInalVoice Cloning\Lib
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = Tacotron(
-        embed_dims=hparams.tts_embed_dims,
+        embed_dims=512,
         num_chars=len(symbols),
-        encoder_dims=hparams.tts_encoder_dims,
-        decoder_dims=hparams.tts_decoder_dims,
-        n_mels=hparams.num_mels,
-        fft_bins=hparams.num_mels,
-        postnet_dims=hparams.tts_postnet_dims,
-        encoder_K=hparams.tts_encoder_K,
-        lstm_dims=hparams.tts_lstm_dims,
-        postnet_K=hparams.tts_postnet_K,
-        num_highways=hparams.tts_num_highways,
-        dropout=0.,
-        stop_threshold=hparams.tts_stop_threshold,
-        speaker_embedding_size=hparams.speaker_embedding_size,
+        encoder_dims=256,
+        decoder_dims=128,
+        n_mels=80,
+        fft_bins=80,
+        postnet_dims=512,
+        encoder_K=5,
+        lstm_dims=1024,
+        postnet_K=5,
+        num_highways=4,
+        dropout=0.5,
+        stop_threshold=-3.4,
+        speaker_embedding_size=256,
     ).to(device)
 
     model.load(syn_model_fpath)
@@ -41,9 +40,9 @@ def generate_gta_mels(datasets_root=Path(r"C:\Users\soham\FInalVoice Cloning\Lib
     mel_dir = in_dir / "mels"
     embed_dir = in_dir / "embeds"
 
-    dataset = SynthesizerDataset(metadata_fpath, mel_dir, embed_dir, hparams)
-    data_loader = DataLoader(dataset, batch_size=hparams.synthesis_batch_size,
-                             collate_fn=partial(collate_synthesizer, r=r, hparams=hparams),
+    dataset = SynthesizerDataset(metadata_fpath, mel_dir, embed_dir)
+    data_loader = DataLoader(dataset, batch_size=16,
+                             collate_fn=partial(collate_synthesizer, r=r),
                              num_workers=0)
 
     with open(out_dir / "synthesized.txt", "w") as file:

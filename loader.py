@@ -8,8 +8,8 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 # Model file names and corresponding Google Drive file IDs
 MODEL_FILES = {
     'encoder.pt':     '1NV3ooEwd_XHxUIgb0VnBYHmcRJJZkMXV',
-    'synthesizer.pt': 'YOUR_SYNTHESIZER_FILE_ID',
-    'vocoder.pt':     'YOUR_VOCODER_FILE_ID'
+    'synthesizer.pt': '1yVOxEyMQsnfu4bRxdoKeEKvCt332TsD-',
+    'vocoder.pt':     '1cF3v0Tj3PpXgSTjPlQ7gpTVKXq8SrZyM'
 }
 
 def download_model(file_name, file_id):

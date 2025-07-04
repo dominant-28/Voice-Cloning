@@ -15,7 +15,7 @@ st.set_page_config(layout="centered")
 st.markdown("""
         <style>
         body {
-            background-image: url('https://www.google.com/url?sa=i&url=https%3A%2F%2Fstartupsmagazine.co.uk%2Farticle-voice-cloning-startup-raises-80-million&psig=AOvVaw2oLqzvU0l0ybV5E_d7W7Wg&ust=1751379504187000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCPC56qyrmY4DFQAAAAAdAAAAABAE');
+            background-color: #f0f0f0;
             background-size: cover;
             background-position: center;
             color: white;

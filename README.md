@@ -1,6 +1,7 @@
 # 🎙️ Voice Cloning using Deep Learning
-
-This project implements a real-time **Voice Cloning System** that can synthesize human-like speech from text using a short voice sample of any speaker. The system is built using a deep learning pipeline composed of three core models:
+### 🔗 Demo  
+[![Streamlit App](https://img.shields.io/badge/Streamlit-Demo-red?logo=streamlit)](https://voice-cloning-sk-28.streamlit.app/)
+#### This project implements a real-time **Voice Cloning System** that can synthesize human-like speech from text using a short voice sample of any speaker. The system is built using a deep learning pipeline composed of three core models:
 
 ### 🔗 Pipeline Overview
 
@@ -153,11 +154,5 @@ Together, these models enable end-to-end voice cloning from just a few seconds o
 📧 [sohamkale2828@gmail.com]  
 
 
----
-
-## 📝 License
-
-This project is licensed under the **MIT License**.  
-See the [LICENSE](./LICENSE) file for more details.
 
 

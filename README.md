@@ -154,11 +154,5 @@ Together, these models enable end-to-end voice cloning from just a few seconds o
 📧 [sohamkale2828@gmail.com]  
 
 
----
-
-## 📝 License
-
-This project is licensed under the **MIT License**.  
-See the [LICENSE](./LICENSE) file for more details.
 
 

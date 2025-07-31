@@ -1,9 +1,9 @@
-# 🎙️ Voice Cloning using Deep Learning
-### 🔗 Demo  
+#  Voice Cloning using Deep Learning
+###  Demo  
 [![Streamlit App](https://img.shields.io/badge/Streamlit-Demo-red?logo=streamlit)](https://voice-cloning-sk-28.streamlit.app/)
 #### This project implements a real-time **Voice Cloning System** that can synthesize human-like speech from text using a short voice sample of any speaker. The system is built using a deep learning pipeline composed of three core models:
 
-### 🔗 Pipeline Overview
+###  Pipeline Overview
 
 1. **Speaker Encoder**  
    Extracts a fixed-dimensional speaker embedding from a short audio clip of the target speaker. This embedding captures the unique vocal characteristics of the speaker.
@@ -16,12 +16,12 @@
 
 ---
 
-### 📦 Dataset
+###  Dataset
 
 - The system is trained and tested using the **LibriSpeech** dataset.
 - It supports cloning from both predefined dataset samples and user-uploaded voice clips.
 
-## 🧠 Tacotron: Text-to-Spectrogram Model
+## Tacotron: Text-to-Spectrogram Model
 
 Tacotron is a sequence-to-sequence model that converts input text into mel-spectrograms, which are then used by a neural vocoder (e.g., WaveRNN) to generate raw audio. It is composed of an encoder-decoder architecture with an attention mechanism.
 
@@ -29,7 +29,7 @@ One of the key components of Tacotron is the **CBHG module**, which is used both
 
 ---
 
-### 📐 Tacotron Architecture
+###  Tacotron Architecture
 
 ![Tacotron Architecture](https://drive.google.com/uc?export=view&id=1BWcAj0ooLchqHnH0oUARYPh2a-t_hxNM)
 
@@ -48,7 +48,7 @@ One of the key components of Tacotron is the **CBHG module**, which is used both
 
 ---
 
-## 🧩 CBHG Module (Used in Encoder and Post-Net)
+##  CBHG Module (Used in Encoder and Post-Net)
 
 ![CBHG Module](https://drive.google.com/uc?export=view&id=1Mn7Qxx0qGJxsOEhNgWmALptz5JaaG8eP)
 
@@ -62,7 +62,7 @@ The **CBHG module** is a core block in Tacotron used for extracting robust seque
 - **Highway Networks**: Fully connected layers with gating mechanisms to control information flow.
 - **Bidirectional GRU (Bi-GRU)**: Captures long-range dependencies in both forward and backward directions.
 
-### 📌 Usage in Tacotron:
+###  Usage in Tacotron:
 
 - **Encoder CBHG**: Converts character-level input to sequential embeddings with context.
 - **Decoder Post-CBHG**: Refines coarse spectrogram outputs from the decoder into sharper and more accurate representations.
@@ -72,13 +72,13 @@ The **CBHG module** is a core block in Tacotron used for extracting robust seque
 #### By combining the strengths of attention mechanisms, RNNs, and the CBHG module, Tacotron is able to generate natural-sounding speech with expressive prosody and accurate pronunciation from text input.
 ---
 
-## 🔊 WaveRNN: Neural Vocoder for Audio Waveform Generation
+##  WaveRNN: Neural Vocoder for Audio Waveform Generation
 
 **WaveRNN** is a powerful and efficient neural vocoder used to convert mel-spectrograms into high-fidelity raw audio waveforms. Unlike traditional vocoders, WaveRNN generates audio sample-by-sample, producing natural and realistic speech even at high quality.
 
 ---
 
-### ⚙️ Architecture Overview
+###  Architecture Overview
 
 WaveRNN consists of the following main components:
 
@@ -100,7 +100,7 @@ WaveRNN consists of the following main components:
 
 ---
 
-### 🧠 Model Flow
+### Model Flow
 
 - Inputs: A sequence of mel-spectrogram frames and previously generated waveform samples.
 - Processing: The features are passed through a ResNet and upsampling stack, then split and processed by GRUs.
@@ -116,7 +116,7 @@ WaveRNN consists of the following main components:
 
 ---
 
-### ✅ Key Features
+###  Key Features
 
 - High-quality audio synthesis with low computational cost.
 - Can run in real-time on consumer-grade hardware.
@@ -139,7 +139,7 @@ Together, these models enable end-to-end voice cloning from just a few seconds o
 
 ---
 
-## 📚 References
+##  References
 
 - [Tacotron: A Fully End-to-End Text-To-Speech Synthesis Model](https://arxiv.org/abs/1703.10135)
 - [WaveRNN: A Compact, Efficient Neural Vocoder](https://arxiv.org/abs/1802.08435)
@@ -148,7 +148,7 @@ Together, these models enable end-to-end voice cloning from just a few seconds o
 
 ---
 
-## 📬 Contact
+##  Contact
 
 **Soham Kale**  
 📧 [sohamkale2828@gmail.com]  

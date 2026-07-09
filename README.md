@@ -138,6 +138,94 @@ This project integrates three key components into a complete voice cloning pipel
 Together, these models enable end-to-end voice cloning from just a few seconds of audio.
 
 ---
+## Getting Started
+ 
+### Prerequisites
+ 
+- Python 3.9+ (recommend 3.10)
+- pip
+- (Optional but recommended) A GPU with CUDA installed, for faster inference
+- ffmpeg installed and available on your system PATH (required for audio processing)
+### 1. Clone the repository
+ 
+```bash
+git clone https://github.com/dominant-28/Voice-Cloning.git
+cd Voice-Cloning
+```
+ 
+### 2. Create a Python virtual environment
+ 
+**Using venv:**
+ 
+```bash
+python -m venv venv
+ 
+# Activate the environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+```
+ 
+**Or using conda:**
+ 
+```bash
+conda create -n voice-cloning python=3.10 -y
+conda activate voice-cloning
+```
+ 
+### 3. Install dependencies
+ 
+```bash
+pip install -r requirements.txt
+```
+ 
+If you also want to run the notebook, make sure Jupyter is installed:
+ 
+```bash
+pip install jupyter notebook
+```
+ 
+## Usage
+ 
+The easiest way to try the project is through the demo notebook, `generator.ipynb`.
+ 
+1. Launch Jupyter:
+```bash
+   jupyter notebook generator.ipynb
+```
+ 
+2. In the notebook, set:
+   - **Text** – the text you want the cloned voice to speak
+   - **Audio file path** – the path to the reference voice sample (e.g. `samples/my_voice.wav`)
+3. Run the notebook cells in order. The generated cloned-voice audio will be produced as output (playable in-notebook and/or saved to disk).
+Example of what the input cell looks like inside the notebook:
+ 
+```python
+text = "Hello, this is my cloned voice speaking."
+audio_path = "samples/my_voice.wav"
+ 
+# Run the generation cell below to produce the cloned audio output
+```
+ 
+## Project Structure
+ 
+```
+Voice-Cloning/
+├── generator.ipynb      # Main demo notebook - paste text & audio path to generate speech
+├── requirements.txt     # Python dependencies
+├── samples/              # Example/reference audio files
+└── README.md
+```
+ 
+> Note: Update this structure to match your actual repository layout if it differs.
+ 
+## Troubleshooting
+ 
+- **ffmpeg not found**: Install it via your OS package manager (`sudo apt install ffmpeg` on Ubuntu, `brew install ffmpeg` on macOS, or download it for Windows) and ensure it's on your PATH.
+- **CUDA/GPU not detected**: The project will still run on CPU, but generation will be slower.
+- **Module not found errors**: Make sure your virtual environment is activated before running `pip install -r requirements.txt` or launching the notebook.
+
 
 ##  References
 

@@ -108,7 +108,7 @@ WaveRNN consists of the following main components:
 
 ---
 
-### 📈 Diagram: WaveRNN Model Overview
+### Diagram: WaveRNN Model Overview
 
 ![WaveRNN Architecture](https://drive.google.com/uc?export=view&id=1IWoLf-ro0nGyfnyPDTQpjK3TEq5HbjeB)
 
@@ -127,7 +127,7 @@ WaveRNN is the final stage in the voice cloning pipeline, taking the mel-spectro
 ---
 
 
-## 🧪 Integration
+## Integration
 
 This project integrates three key components into a complete voice cloning pipeline:
 

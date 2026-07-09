@@ -137,15 +137,14 @@ This project integrates three key components into a complete voice cloning pipel
 
 Together, these models enable end-to-end voice cloning from just a few seconds of audio.
 
----
 ## Getting Started
  
 ### Prerequisites
  
-- Python 3.9+ (recommend 3.10)
+- Python 3.9 or 3.10
 - pip
-- (Optional but recommended) A GPU with CUDA installed, for faster inference
-- ffmpeg installed and available on your system PATH (required for audio processing)
+- (Recommended) A CUDA-capable GPU — the notebook falls back to CPU automatically if none is found
+- ffmpeg (recommended for reading/writing various audio formats)
 ### 1. Clone the repository
  
 ```bash
@@ -160,10 +159,10 @@ cd Voice-Cloning
 ```bash
 python -m venv venv
  
-# Activate the environment
-# On Windows:
+# Activate it
+# Windows:
 venv\Scripts\activate
-# On macOS/Linux:
+# macOS/Linux:
 source venv/bin/activate
 ```
  
@@ -180,52 +179,83 @@ conda activate voice-cloning
 pip install -r requirements.txt
 ```
  
-If you also want to run the notebook, make sure Jupyter is installed:
+This installs: `numpy`, `librosa`, `torch`, `torchvision`, `torchaudio`, `tqdm`, `scipy`, `matplotlib`, `scikit-learn`, `soundfile`, `webrtcvad`, `streamlit`, `unidecode`, and `gdown`.
+ 
+> Note: the `requirements.txt` doesn't pin a specific `torch` build. If you have a GPU, install the CUDA-matched version of `torch`/`torchaudio` from [pytorch.org](https://pytorch.org/get-started/locally/) *before* running `pip install -r requirements.txt`, so pip doesn't overwrite it with a CPU-only build.
+ 
+Also install Jupyter if it's not already available:
  
 ```bash
 pip install jupyter notebook
 ```
  
+### 4. Download the pretrained checkpoints
+ 
+The notebook loads three pretrained checkpoints:
+ 
+- `encoder.pt` – Speaker Encoder weights
+- `synthesizer.pt` – Tacotron synthesizer weights
+- `vocoder.pt` – WaveRNN vocoder weights
+Place these files somewhere on disk (e.g. a `checkpoints/` folder in the project root), and update the paths in `generator.ipynb` accordingly (see next section).
+ 
+> If you have a shared/hosted copy of these checkpoints (e.g. on Google Drive), you can use `gdown` (already in `requirements.txt`) to fetch them, or add direct download instructions/links here once you have a hosting location for them.
+ 
 ## Usage
  
-The easiest way to try the project is through the demo notebook, `generator.ipynb`.
- 
-1. Launch Jupyter:
+1. Launch the notebook:
 ```bash
    jupyter notebook generator.ipynb
 ```
  
-2. In the notebook, set:
-   - **Text** – the text you want the cloned voice to speak
-   - **Audio file path** – the path to the reference voice sample (e.g. `samples/my_voice.wav`)
-3. Run the notebook cells in order. The generated cloned-voice audio will be produced as output (playable in-notebook and/or saved to disk).
-Example of what the input cell looks like inside the notebook:
- 
+2. **Update the checkpoint paths** near the top of the notebook to point to your local files:
 ```python
-text = "Hello, this is my cloned voice speaking."
-audio_path = "samples/my_voice.wav"
- 
-# Run the generation cell below to produce the cloned audio output
+   checkpoint1 = torch.load(r"path/to/encoder.pt", map_location=device)
+   checkpoint2 = torch.load(r"path/to/synthesizer.pt", map_location=device)
+   checkpoint3 = torch.load(r"path/to/vocoder.pt", map_location=device)
 ```
+ 
+3. **Set your reference audio and text**, then run the generation cells:
+```python
+   input_file = Path(r"path/to/reference_audio.wav")
+   preprocessed_wav = preprocess_wav(input_file)
+   embed = embed_utterance(preprocessed_wav)
+ 
+   text = "Type the sentence you want spoken in the cloned voice here."
+ 
+   mel = synthesize_spectrograms([text], [embed])[0]
+   mel = mel / 4.
+   mel = torch.from_numpy(mel[None, ...])
+   wav = model3.generate(mel, True, 8000, 800, True, None)
+```
+ 
+4. **Save the output:**
+```python
+   path = Path(r"path/to/output.wav")
+   sf.write(path, wav.astype(np.float32), 16000)
+```
+ 
+The result is a `.wav` file of the input text spoken in the cloned voice, sampled at 16 kHz.
  
 ## Project Structure
  
 ```
 Voice-Cloning/
-├── generator.ipynb      # Main demo notebook - paste text & audio path to generate speech
-├── requirements.txt     # Python dependencies
-├── samples/              # Example/reference audio files
+├── Encoder/              # Speaker encoder model + audio preprocessing (preprocess_wav, wav_to_mel_spectrogram)
+├── Tacotron/              # Synthesizer model + text utilities (symbols, text_to_sequence)
+├── wavernn/               # WaveRNN vocoder model
+├── generator.ipynb        # Main demo notebook — set audio path + text, run to generate cloned speech
+├── requirements.txt       # Python dependencies
 └── README.md
 ```
  
-> Note: Update this structure to match your actual repository layout if it differs.
+> Update this structure if your actual folder names/layout differ.
  
 ## Troubleshooting
  
-- **ffmpeg not found**: Install it via your OS package manager (`sudo apt install ffmpeg` on Ubuntu, `brew install ffmpeg` on macOS, or download it for Windows) and ensure it's on your PATH.
-- **CUDA/GPU not detected**: The project will still run on CPU, but generation will be slower.
-- **Module not found errors**: Make sure your virtual environment is activated before running `pip install -r requirements.txt` or launching the notebook.
-
+- **`FileNotFoundError` on checkpoint load**: Double-check the `encoder.pt` / `synthesizer.pt` / `vocoder.pt` paths in the notebook — they currently use placeholder Windows-style paths (`r"DIR\..."`) and need to point to files that actually exist on your machine.
+- **Slow generation on CPU**: This is expected — the WaveRNN vocoder in particular benefits a lot from a GPU. Install a CUDA-enabled `torch` build if you have a compatible GPU.
+- **Poor voice similarity**: Use a clean reference clip (a few seconds, minimal background noise/music) for best speaker-embedding quality.
+- **`webrtcvad` install issues**: On some systems this requires build tools (`build-essential` on Linux, or Visual C++ Build Tools on Windows) since it compiles a small C extension.
 
 ##  References
 
